@@ -1,12 +1,12 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
 import { useGame } from "../hooks/useGame";
 
 export default function GameBoard() {
   const { guesses, current, addLetter, removeLetter, submit, gradeGuess } =
-    useGame({ solution: "APPLE" });
+    useGame();
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

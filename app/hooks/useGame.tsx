@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getDailyWord } from "../requests/getDailyWord";
+import { getValidWord } from "../requests/getValidWord";
 
 export type LetterState = "correct" | "present" | "absent" | "empty";
 
 export function useGame({
-  solution = "APPLE",
   wordLength = 5,
   maxGuesses = 6,
 }: {
@@ -16,12 +17,24 @@ export function useGame({
   const [guesses, setGuesses] = useState<string[]>([]);
   const [current, setCurrent] = useState<string>("");
   const [finished, setFinished] = useState<boolean>(false);
+  const [solution, setSolution] = useState<string>("");
 
   useEffect(() => {
     const upSol = solution.toUpperCase();
     if (guesses.includes(upSol)) setFinished(true);
     if (guesses.length >= maxGuesses && !guesses.includes(upSol)) setFinished(true);
   }, [guesses, solution, maxGuesses]);
+
+  useEffect(() => {
+    async function fetchDailyWord() {
+      const word = await getDailyWord();
+      if (word) {
+        setSolution(word);
+      }
+    }
+    fetchDailyWord();
+  }, []);
+
 
   const addLetter = useCallback(
     (l: string) => {
@@ -41,6 +54,10 @@ export function useGame({
     if (finished) return;
     if (current.length !== wordLength) return;
     setGuesses((g) => [...g, current.toUpperCase()]);
+    getValidWord(current).catch(() => {
+      //TODO: ADD TOAST NOTIFICATION
+      setGuesses((g) => g.slice(0, -1));
+    });
     setCurrent("");
   }, [current, finished, wordLength]);
 
