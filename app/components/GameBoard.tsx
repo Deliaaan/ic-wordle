@@ -1,8 +1,8 @@
-
 "use client";
 
 import React, { useEffect } from "react";
 import { useGame } from "../hooks/useGame";
+import Keyboard from "./keyboard";
 
 export default function GameBoard() {
   const { guesses, current, addLetter, removeLetter, submit, gradeGuess } =
@@ -65,6 +65,16 @@ export default function GameBoard() {
           );
         })}
       </div>
+      
+      <Keyboard 
+        onKey={(key) => {
+          if (key === "Enter") submit();
+          else if (key === "Backspace") removeLetter();
+          else addLetter(key);
+        }}
+        guesses={guesses}
+        gradeGuess={(guess: string) => gradeGuess(guess).filter((state) => state !== "empty") as ("correct" | "present" | "absent")[]}
+      />
     </div>
   );
 }
