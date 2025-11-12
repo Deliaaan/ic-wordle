@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useGame } from "../hooks/useGame";
 import Keyboard from "./keyboard";
 
@@ -21,7 +21,7 @@ export default function GameBoard() {
         e.preventDefault();
         return removeLetter();
       }
-      if (/^[a-zA-Z]$/.test(k)) {
+      if (/^[a-zA-ZñÑ]$/.test(k)) {
         e.preventDefault();
         return addLetter(k.toUpperCase());
       }
