@@ -10,6 +10,8 @@ export default function GameBoard() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
       const k = e.key;
       if (k === "Enter") {
         e.preventDefault();
@@ -73,7 +75,7 @@ export default function GameBoard() {
           else addLetter(key);
         }}
         guesses={guesses}
-        gradeGuess={(guess: string) => gradeGuess(guess).filter((state) => state !== "empty") as ("correct" | "present" | "absent")[]}
+        gradeGuess={gradeGuess}
       />
     </div>
   );
