@@ -75,7 +75,11 @@ export default function GameBoard() {
           else addLetter(key);
         }}
         guesses={guesses}
-        gradeGuess={gradeGuess}
+        gradeGuess={(gg) =>
+          gradeGuess(gg).filter(
+            (s): s is "correct" | "present" | "absent" => s !== "empty"
+          )
+        }
       />
     </div>
   );
