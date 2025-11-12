@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getDailyWord } from "../requests/getDailyWord";
 import { getValidWord } from "../requests/getValidWord";
+import { toast, Bounce } from "react-toastify";
 
 export type LetterState = "correct" | "present" | "absent" | "empty";
 
@@ -50,15 +51,29 @@ export function useGame({
     setCurrent((c) => c.slice(0, -1));
   }, [finished]);
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     if (finished) return;
     if (current.length !== wordLength) return;
-    setGuesses((g) => [...g, current.toUpperCase()]);
-    getValidWord(current).catch(() => {
-      //TODO: ADD TOAST NOTIFICATION
-      setGuesses((g) => g.slice(0, -1));
-    });
-    setCurrent("");
+
+    try {
+      // tengo que validar la palabra primerooooo >:(
+      await getValidWord(current);
+      setGuesses((g) => [...g, current.toUpperCase()]);
+    } catch (err) {
+      toast.error("Palabra no válida", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+    } finally {
+      setCurrent("");
+    }
   }, [current, finished, wordLength]);
 
   function gradeGuess(guess: string) {
