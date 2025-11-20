@@ -1,6 +1,6 @@
 import GameBoard from "./components/GameBoard";
 import { ToastContainer, Bounce } from "react-toastify";
-//import "react-toastify/dist/ReactToastify.css";
+//import "react-toastify/dist/ReactToastify.css"; // no se si necesito esto realmente xd
 
 export default function Home() {
   return (
@@ -19,7 +19,7 @@ export default function Home() {
         rtl={false}
         pauseOnFocusLoss
         draggable
-        pauseOnHover
+        pauseOnHover={false}
         theme="dark"
         transition={Bounce}
       />

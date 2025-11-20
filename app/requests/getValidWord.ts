@@ -1,15 +1,23 @@
+import axios from "axios";
 
-// import axios from "axios";
-// const BASE_URL = 'https://rae-api.com/api'
+const DEFAULT_PROXY = process.env.PROXY_URL || 'http://localhost:4000';
 
-// axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*, https://rae-api.com';
+function cleanWord(word: string): string {
+    return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+}
 
-// async function getValidWord(word: string): Promise<string> {
-//   const response = await axios.get(`${BASE_URL}/words/${word}`, { params: { max_length: 5, min_length: 5 } });
-//   const data = await response.data?.data;
-//   return data.word;
-// }
+async function getValidWord(): Promise<string> {
+    const key = process.env.X_API_KEY;
 
-// export {
-//     getValidWord,
-// }
+    if (!key) { 
+        throw new Error("API Key required to call proxy")
+    }
+    
+    const BASE_URL = process.env.PROXY_URL || 'http://localhost:4000';
+
+    const resp = await axios.get(`${DEFAULT_PROXY}/api/daily`, {
+        headers: { 'X-API-KEY': key }
+    })
+
+    return cleanWord(resp.data.word);
+}

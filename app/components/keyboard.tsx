@@ -43,7 +43,7 @@ export default function Keyboard({
             case "correct": return `${baseClass} bg-green-600`;
             case "present": return `${baseClass} bg-yellow-600`;
             case "absent": return `${baseClass} bg-gray-600`;
-            default: return `${baseClass} bg-transparent border-zinc-400 dark:border-zinc-700`;
+            default: return `${baseClass} bg-transparent border-white border-1 p-2`;
         }
     };
 
