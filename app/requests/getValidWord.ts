@@ -1,12 +1,6 @@
 import axios from "axios";
 
-const DEFAULT_PROXY = process.env.PROXY_URL || 'http://localhost:4000';
-
-function cleanWord(word: string): string {
-    return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-}
-
-async function getValidWord(): Promise<string> {
+async function getValidWord(word: string): Promise<boolean> {
     const key = process.env.X_API_KEY;
 
     if (!key) { 
@@ -15,9 +9,26 @@ async function getValidWord(): Promise<string> {
     
     const BASE_URL = process.env.PROXY_URL || 'http://localhost:4000';
 
-    const resp = await axios.get(`${DEFAULT_PROXY}/api/daily`, {
-        headers: { 'X-API-KEY': key }
-    })
+    try {
+        const resp = await axios.get(`${BASE_URL}/api/words/${word}`, {
+            headers: { 'X-API-KEY': key}, 
+            params: { length: 5},
+            validateStatus: status => status < 500
+        })
+        const payload = resp.data;
+        const exists = Boolean(payload?.word)||Boolean(payload?.data?.word);
 
-    return cleanWord(resp.data.word);
+    if (!exists) {
+      throw new Error("Word not valid");
+    }
+    return true;
+    }catch (err) {
+        throw err;
+    }
+
+}
+
+
+export {
+    getValidWord,
 }

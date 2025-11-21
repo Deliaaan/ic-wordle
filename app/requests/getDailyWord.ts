@@ -1,5 +1,7 @@
 
 import axios from "axios";
+import 'dotenv/config';
+
 
 function cleanWord(word: string): string {
     return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -7,6 +9,11 @@ function cleanWord(word: string): string {
 
 async function getDailyWord(): Promise<string> {
     const key = process.env.X_API_KEY;
+
+    console.log(process.env)
+
+
+    
     if (!key) {
         throw new Error("API Key required to call proxy")
     }
@@ -26,12 +33,6 @@ async function getDailyWord(): Promise<string> {
     return cleanWord(word);
 }
 
-// async function getDailyWord(): Promise<string> {
-//   const response = await axios.get(`${BASE_URL}/random`, { params: { max_length: 5, min_length: 5 } });
-//   const data = await response.data?.data;
-//   const word = data.word;
-//   return cleanWord(word);
-// }
 
 export {
     getDailyWord,
