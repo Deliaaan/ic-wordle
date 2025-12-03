@@ -1,12 +1,14 @@
-const express = require('express');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 require('dotenv').config();
 //const crypto = require('crypto'); // no se para que se usa pero lei que es para seguridad jaja
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
+const express = require('express');
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// TODO: Implementar middleware de autenticación usando una Key en el header llamada X-API-KEY
+// mejor uso la pta libreria de express alv
+app.use(cors());
 
 const apiKeyMiddleware = (request, response, next) => {
   const apiKey = request.header('X-API-KEY');
@@ -19,12 +21,12 @@ const apiKeyMiddleware = (request, response, next) => {
   next();
 }
 
-app.use(apiKeyMiddleware);
+app.use(apiKeyMiddleware); 
 // TODO: Instalar en el server api de Firebase (FireStore)
 
 app.get('/api/daily', async (req, res) => {
   try {
-    const response = await fetch('https://rae-api.com/api/daily?max_length=5&min_length=5');
+    const response = await fetch('https://rae-api.com/api/random?max_length=5&min_length=5');
     const data = await response.json();
     res.set('Access-Control-Allow-Origin', '*');
     res.json(data);

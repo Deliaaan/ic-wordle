@@ -1,6 +1,7 @@
 
 import axios from "axios";
-import 'dotenv/config';
+import { environment } from '../environments/dev';
+
 
 
 function cleanWord(word: string): string {
@@ -8,20 +9,18 @@ function cleanWord(word: string): string {
 }
 
 async function getDailyWord(): Promise<string> {
-    const key = process.env.X_API_KEY;
+    const key = environment.X_API_KEY;
 
-    console.log(process.env)
+    console.log(environment)
 
-
-    
     if (!key) {
         throw new Error("API Key required to call proxy")
     }
-    const BASE_URL = process.env.PROXY_URL || 'http://localhost:4000'; // Esto solo es para desarrollo???
+    const BASE_URL = environment.PROXY_URL || 'http://localhost:4000'; // Esto solo es para desarrollo???
 
     const resp = await axios.get(`${BASE_URL}/api/daily`, {
-        headers: { 'X-API-KEY': key }
-    })
+        headers: { 'X-API-KEY': key },
+    });
 
     const payload = resp.data;
     const word = payload.word || payload?.data?.word;
