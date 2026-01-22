@@ -12,6 +12,8 @@ app.use(cors());
 
 const apiKeyMiddleware = (request, response, next) => {
   const apiKey = request.header('X-API-KEY');
+  console.log('Received API Key:', apiKey);
+  console.log('Expected API Key:', process.env.X_API_KEY);
   if(!apiKey) {
     return response.status(401).json({ error: 'Unauthorized'});
   }
@@ -39,7 +41,7 @@ app.get('/api/daily', async (req, res) => {
 app.get('/api/words/:word', async (req, res) => {
   const word = req.params.word;
   try {
-    const response = await fetch(`https://rae-api.com/api/words/${encodeURIComponent(word)}?max_length=5&min_length=5`);
+    const response = await fetch(`https://rae-api.com/api/words/${encodeURIComponent(word)}`);
     const data = await response.json();
     res.set('Access-Control-Allow-Origin', '*');
     res.json(data);
@@ -52,3 +54,4 @@ app.get('/api/words/:word', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Proxy server running on port ${PORT}`);
 })
+

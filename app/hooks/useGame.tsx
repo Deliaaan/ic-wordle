@@ -52,29 +52,31 @@ export function useGame({
   }, [finished]);
 
   const submit = useCallback(async () => {
-    if (finished) return;
-    if (current.length !== wordLength) return;
+  if (finished) return;
+  if (current.length !== wordLength) return;
 
-    try {
-      // tengo que validar la palabra primerooooo >:(
-      await getValidWord(current);
-      setGuesses((g) => [...g, current.toUpperCase()]);
-    } catch (err) {
-      toast.error("Palabra no válida", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-      });
-    } finally {
-      setCurrent("");
-    }
-  }, [current, finished, wordLength]);
+  try {
+    // Valida la palabra primero
+    const isValid = await getValidWord(current);
+    console.log("Current word: ", current);
+    console.log("Is valid:", isValid);  // Registra el resultado de la validación sin llamar de nuevo
+    setGuesses((g) => [...g, current.toUpperCase()]);
+  } catch (err) {
+    toast.error("Palabra no válida", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  } finally {
+    setCurrent("");
+  }
+}, [current, finished, wordLength]);
 
   function gradeGuess(guess: string) {
     const res: LetterState[] = Array(wordLength).fill("absent");
