@@ -57,11 +57,13 @@ export function useGame({
 
   try {
     // Valida la palabra primero
+    console.log("Validating word:", current);
     const isValid = await getValidWord(current);
     console.log("Current word: ", current);
     console.log("Is valid:", isValid);  // Registra el resultado de la validación sin llamar de nuevo
     setGuesses((g) => [...g, current.toUpperCase()]);
   } catch (err) {
+    console.error("Error en validación:", err);
     toast.error("Palabra no válida", {
       position: "top-center",
       autoClose: 3000,

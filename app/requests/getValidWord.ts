@@ -3,12 +3,13 @@ import 'dotenv/config';
 
 async function getValidWord(word: string): Promise<boolean> {
     const key = process.env.NEXT_PUBLIC_X_API_KEY;
-
+    
+    console.log('Client API Key:', key);
     if (!key) { 
         throw new Error("API Key required to call proxy")
     }
     
-    const BASE_URL = process.env.PROXY_URL || 'http://localhost:4000';
+    const BASE_URL = process.env.URL || 'http://localhost:4000'; //modificar en el futuro
 
     try {
         const resp = await axios.get(`${BASE_URL}/api/words/${word.toLowerCase()}`, {
@@ -26,9 +27,7 @@ async function getValidWord(word: string): Promise<boolean> {
     }catch (err) {
         throw err;
     }
-
 }
-
 
 export {
     getValidWord,
