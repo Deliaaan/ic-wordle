@@ -8,7 +8,7 @@ import { toast, Bounce } from "react-toastify";
 export type LetterState = "correct" | "present" | "absent" | "empty";
 
 export function useGame({
-  wordLength = 5,
+  wordLength = 6,
   maxGuesses = 6,
 }: {
   solution?: string;

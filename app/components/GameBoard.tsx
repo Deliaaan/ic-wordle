@@ -39,8 +39,8 @@ export default function GameBoard() {
           const isSubmitted = ri < guesses.length;
           const states = isSubmitted ? gradeGuess(guesses[ri]) : [];
           return (
-            <div key={ri} className="grid grid-cols-5 gap-2">
-              {Array.from({ length: 5 }).map((_, ci) => {
+            <div key={ri} className="grid grid-cols-6 gap-2">
+              {Array.from({ length: 6 }).map((_, ci) => {
                 const ch = (row || "")[ci] || "";
                 const state: "correct" | "present" | "absent" | "empty" =
                   isSubmitted ? (states[ci] as any) : "empty";
