@@ -1,13 +1,32 @@
-
 import axios from "axios";
-const BASE_URL = 'https://rae-api.com/api'
+import 'dotenv/config';
 
-axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*, https://rae-api.com';
+async function getValidWord(word: string): Promise<boolean> {
+    const key = process.env.NEXT_PUBLIC_X_API_KEY;
+    
+    console.log('Client API Key:', key);
+    if (!key) { 
+        throw new Error("API Key required to call proxy")
+    }
+    
+    const BASE_URL = process.env.URL || 'http://localhost:4000'; //modificar en el futuro
 
-async function getValidWord(word: string): Promise<string> {
-  const response = await axios.get(`${BASE_URL}/words/${word}`, { params: { max_length: 5, min_length: 5 } });
-  const data = await response.data?.data;
-  return data.word;
+    try {
+        const resp = await axios.get(`${BASE_URL}/api/words/${word.toLowerCase()}`, {
+            headers: { 'X-API-KEY': key}, 
+            validateStatus: status => status < 500
+        })
+        const payload = resp.data;
+        console.log('Valid word response:', resp.status, payload);
+        const exists = Boolean(payload?.word)||Boolean(payload?.data?.word);
+
+    if (!exists) {
+      throw new Error("Word not valid");
+    }
+    return true;
+    }catch (err) {
+        throw err;
+    }
 }
 
 export {

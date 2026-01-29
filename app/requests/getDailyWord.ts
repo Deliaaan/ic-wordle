@@ -1,18 +1,38 @@
 
 import axios from "axios";
-const BASE_URL = 'https://rae-api.com/api'
+//import { environment } from '../environments/dev';
 
-axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*, https://rae-api.com';
+
+
 function cleanWord(word: string): string {
     return word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 }
 
 async function getDailyWord(): Promise<string> {
-  const response = await axios.get(`${BASE_URL}/random`, { params: { max_length: 5, min_length: 5 } });
-  const data = await response.data?.data;
-  const word = data.word;
-  return cleanWord(word);
+    const key = process.env.NEXT_PUBLIC_X_API_KEY;
+
+    //console.log('Client API Key:', key);
+
+    if (!key) {
+        throw new Error("API Key required to call proxy")
+    }
+    const BASE_URL = process.env.PROXY_URL || 'http://localhost:4000'; //Esto solo es para desarrollo???
+
+    console.log('Calling:', `${BASE_URL}/api/daily`);
+    const resp = await axios.get(`${BASE_URL}/api/daily`, {
+        headers: { 'X-API-KEY': key },
+    });
+
+    const payload = resp.data; 
+    const word = payload.word || payload?.data?.word;
+
+    if (!word) {
+        throw new Error("No word found in rae proxy response xd")
+    }
+
+    return cleanWord(word);
 }
+
 
 export {
     getDailyWord,
