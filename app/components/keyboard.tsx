@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 
 const ROWS = [
     "QWERTYUIOP".split(""),
-    "ASDFGHJKL".split(""),
+    "ASDFGHJKLÑ".split(""),
     ["Enter", ..."ZXCVBNM".split(""), "Backspace"],
 ]
 

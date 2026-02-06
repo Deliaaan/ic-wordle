@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2020",         /* Especifica el destino de la versión ECMAScript. */
+    "module": "commonjs",       /* Especifica el sistema de módulo. `require` es CommonJS. */
+    "esModuleInterop": true,    /* Habilita la interoperabilidad entre módulos CommonJS y ES. */
+    "forceConsistentCasingInFileNames": true, /* Asegura que los nombres de archivo no se diferencien solo por mayúsculas/minúsculas. */
+    "strict": true,             /* Habilita todas las opciones estrictas de verificación de tipo. */
+    "skipLibCheck": true,       /* Omite la verificación de tipos de todos los archivos de declaración (.d.ts). */
+    "outDir": "./dist"          /* Directorio donde se emitirán los archivos JavaScript compilados. */
+  },
+  "include": [
+    "app/**/*.ts"               /* Incluye todos los archivos .ts dentro de la carpeta 'app' */
+  ]
+}
