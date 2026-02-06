@@ -43,8 +43,6 @@ next-env.d.ts
 #Environmets
 
 app/environments/*
-firebaseConfig.json
-firebaseConfig.ts
 
-app\db\firebaseConfig.json
-app\db\firebaseConfig.ts
+# Firestore credentials
+app/db/serviceAccountKey.json
