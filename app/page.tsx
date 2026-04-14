@@ -1,6 +1,9 @@
+
+"use client";
 import GameBoard from "./components/GameBoard";
 import { ToastContainer, Bounce } from "react-toastify";
-//import "react-toastify/dist/ReactToastify.css"; // no se si necesito esto realmente xd
+import { useEffect, use } from "react";
+import { getWords } from "./requests/getWords";
 
 export default function Home() {
   return (

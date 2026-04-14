@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getDailyWord } from "../requests/getDailyWord";
-import { getValidWord } from "../requests/getValidWord";
+import { getValidWord } from "../requests/getValidWord.supabase";
 import { toast, Bounce } from "react-toastify";
 
 export type LetterState = "correct" | "present" | "absent" | "empty";
@@ -26,15 +26,8 @@ export function useGame({
     if (guesses.length >= maxGuesses && !guesses.includes(upSol)) setFinished(true);
   }, [guesses, solution, maxGuesses]);
 
-  useEffect(() => {
-    async function fetchDailyWord() {
-      const word = await getDailyWord();
-      if (word) {
-        setSolution(word);
-      }
-    }
-    fetchDailyWord();
-  }, []);
+
+  // Ya no se obtiene la palabra diaria al inicio, solo se valida al enviar
 
 
   const addLetter = useCallback(
@@ -52,33 +45,56 @@ export function useGame({
   }, [finished]);
 
   const submit = useCallback(async () => {
-  if (finished) return;
-  if (current.length !== wordLength) return;
+    if (finished) return;
+    if (current.length !== wordLength) return;
 
-  try {
-    // Valida la palabra primero
-    console.log("Validating word:", current);
-    const isValid = await getValidWord(current);
-    console.log("Current word: ", current);
-    console.log("Is valid:", isValid);  // Registra el resultado de la validación sin llamar de nuevo
-    setGuesses((g) => [...g, current.toUpperCase()]);
-  } catch (err) {
-    console.error("Error en validación:", err);
-    toast.error("Palabra no válida", {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Bounce,
-    });
-  } finally {
-    setCurrent("");
-  }
-}, [current, finished, wordLength]);
+    try {
+      // Valida la palabra primero
+      console.log("Validating word:", current);
+      const isValid = await getValidWord(current);
+      console.log("Current word: ", current);
+      console.log("Is valid:", isValid);
+      if (!isValid) {
+        toast.error("Palabra no válida", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
+        setCurrent("");
+        return;
+      }
+
+      // Validar si la palabra es la diaria usando la API
+      const isDaily = await getDailyWord(current);
+      if (isDaily) {
+        setGuesses((g) => [...g, current.toLowerCase()]);
+        setFinished(true);
+      } else {
+        setGuesses((g) => [...g, current.toLowerCase()]);
+      }
+    } catch (err) {
+      console.error("Error en validación:", err);
+      toast.error("Palabra no válida", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+    } finally {
+      setCurrent("");
+    }
+  }, [current, finished, wordLength]);
 
   function gradeGuess(guess: string) {
     const res: LetterState[] = Array(wordLength).fill("absent");
