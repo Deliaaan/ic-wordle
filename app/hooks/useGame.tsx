@@ -1,43 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { getDailyWord } from "../requests/getDailyWord";
-import { getValidWord } from "../requests/getValidWord.supabase";
-import { toast, Bounce } from "react-toastify";
+import { useCallback, useState } from "react";
+import { toast } from "react-toastify";
 
 export type LetterState = "correct" | "present" | "absent" | "empty";
 
-export function useGame({
-  wordLength = 6,
-  maxGuesses = 6,
-}: {
-  solution?: string;
-  wordLength?: number;
-  maxGuesses?: number;
-} = {}) {
-  const [guesses, setGuesses] = useState<string[]>([]);
+// Definimos un tipo para el historial con los resultados del servidor
+type GuessHistory = {
+  word: string;
+  result: LetterState[];
+};
+
+export function useGame({ wordLength = 6, maxGuesses = 6 } = {}) {
+  // Ahora guardamos objetos de tipo GuessHistory
+  const [history, setHistory] = useState<GuessHistory[]>([]);
   const [current, setCurrent] = useState<string>("");
   const [finished, setFinished] = useState<boolean>(false);
-  const [solution, setSolution] = useState<string>("");
 
-  useEffect(() => {
-    const upSol = solution.toUpperCase();
-    if (guesses.includes(upSol)) setFinished(true);
-    if (guesses.length >= maxGuesses && !guesses.includes(upSol)) setFinished(true);
-  }, [guesses, solution, maxGuesses]);
-
-
-  // Ya no se obtiene la palabra diaria al inicio, solo se valida al enviar
-
-
-  const addLetter = useCallback(
-    (l: string) => {
-      if (finished) return;
-      if (current.length >= wordLength) return;
-      setCurrent((c) => (c + l).slice(0, wordLength).toUpperCase());
-    },
-    [current, finished, wordLength]
-  );
+  const addLetter = useCallback((l: string) => {
+    if (finished) return;
+    setCurrent((c) => (c.length < wordLength ? (c + l).toUpperCase() : c));
+  }, [finished, wordLength]);
 
   const removeLetter = useCallback(() => {
     if (finished) return;
@@ -45,90 +28,42 @@ export function useGame({
   }, [finished]);
 
   const submit = useCallback(async () => {
-    if (finished) return;
-    if (current.length !== wordLength) return;
+    if (finished || current.length !== wordLength) return;
 
     try {
-      // Valida la palabra primero
-      console.log("Validating word:", current);
-      const isValid = await getValidWord(current);
-      console.log("Current word: ", current);
-      console.log("Is valid:", isValid);
-      if (!isValid) {
-        toast.error("Palabra no válida", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: false,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-          transition: Bounce,
-        });
+      const res = await fetch("/api/daily", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ word: current })
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        toast.error(data.error);
         setCurrent("");
         return;
       }
 
-      // Validar si la palabra es la diaria usando la API
-      const isDaily = await getDailyWord(current);
-      if (isDaily) {
-        setGuesses((g) => [...g, current.toLowerCase()]);
+      // Guardamos la palabra Y el resultado que calculó el servidor
+      const newHistory = [...history, { word: current, result: data.result }];
+      setHistory(newHistory);
+      setCurrent("");
+
+      if (data.correct || newHistory.length >= maxGuesses) {
         setFinished(true);
-      } else {
-        setGuesses((g) => [...g, current.toLowerCase()]);
       }
     } catch (err) {
-      console.error("Error en validación:", err);
-      toast.error("Palabra no válida", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-      });
-    } finally {
-      setCurrent("");
+      toast.error("Error de conexión");
     }
-  }, [current, finished, wordLength]);
-
-  function gradeGuess(guess: string) {
-    const res: LetterState[] = Array(wordLength).fill("absent");
-    const sol = solution.toUpperCase().split("");
-    const g = guess.toUpperCase().split("");
-
-    g.forEach((ch, i) => {
-      if (ch === sol[i]) {
-        res[i] = "correct";
-        sol[i] = "";
-      }
-    });
-
-    g.forEach((ch, i) => {
-      if (res[i] === "correct") return;
-      const idx = sol.indexOf(ch);
-      if (idx !== -1) {
-        res[i] = "present";
-        sol[idx] = "";
-      } else {
-        res[i] = "absent";
-      }
-    });
-
-    return res;
-  }
+  }, [current, finished, history, maxGuesses, wordLength]);
 
   return {
-    guesses,
+    history,
     current,
     finished,
     addLetter,
     removeLetter,
     submit,
-    gradeGuess,
   };
 }
